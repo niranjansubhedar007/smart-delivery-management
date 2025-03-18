@@ -4,7 +4,7 @@
 
 import mongoose from 'mongoose';
 
-const MONGODB_URI = "mongodb://127.0.0.1:27017/smart-delivery";
+const MONGODB_URI = "mongodb+srv://niranjansubhedar:434vlC4Ke8YcsTYY@cluster0.imwl2.mongodb.net/";
 
 if (!MONGODB_URI) {
   throw new Error('❌ Please define the MONGODB_URI environment variable inside .env.local');
