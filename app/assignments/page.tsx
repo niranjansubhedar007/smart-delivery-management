@@ -281,14 +281,13 @@ export default function AssignmentsPage() {
 
       if (!res.ok) throw new Error("Failed to update assignment");
 
-      // Step 2: If status is "failed", update the order status to "undelivered"
       if (assignment.status === "failed") {
-        const updateRes = await fetch(`/api/orders/${assignment.orderId}/status`, {
+        const updateRes = await fetch(`/api/orders/status?orderId=${assignment.orderId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ status: "undelivered" }),
         });
-
+  
         if (!updateRes.ok) throw new Error("Failed to update order status");
       }
 

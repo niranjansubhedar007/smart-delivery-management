@@ -22,23 +22,42 @@ export async function GET(req: Request) {
     const totalAssigned = await Assignment.countDocuments(query);
     
     // Successful assignments count
-    const successfulAssignments = await Assignment.countDocuments({ ...query, status: "success" });
 
     // Calculate success rate
-    const successRate = totalAssigned > 0 ? (successfulAssignments / totalAssigned) * 100 : 0;
 
     // ✅ Aggregate to get completed & cancelled orders by partner
-    const partnerStats = await Assignment.aggregate([
-      { $match: query },
-      {
-        $group: {
-          _id: "$partnerId",
-          completedOrders: { $sum: { $cond: [{ $eq: ["$status", "success"] }, 1, 0] } },
-          cancelledOrders: { $sum: { $cond: [{ $eq: ["$status", "failed"] }, 1, 0] } },
-        },
-      },
-    ]);
+    // const partnerStats = await Assignment.aggregate([
+    //   { $match: query },
+    //   {
+    //     $group: {
+    //       _id: "$partnerId",
+    //       completedOrders: { $sum: { $cond: [{ $eq: ["$status", "success"] }, 1, 0] } },
+    //       cancelledOrders: { $sum: { $cond: [{ $eq: ["$status", "failed"] }, 1, 0] } },
+    //     },
+    //   },
+    // ]);
 
+  const partnerStats = await Assignment.aggregate([
+  { $match: query },
+  {
+    $group: {
+      _id: "$partnerId",
+      completedOrders: {
+        $sum: { $cond: [{ $in: ["$status", ["success", "delivered"]] }, 1, 0] }, // ✅ Count both success & delivered
+      },
+      cancelledOrders: {
+        $sum: { $cond: [{ $in: ["$status", ["failed", "undelivered"]] }, 1, 0] }, // ✅ Count both failed & undelivered
+      },
+    },
+  },
+]);
+
+    const totalCompleted = partnerStats.reduce((sum, p) => sum + p.completedOrders, 0);
+const totalCancelled = partnerStats.reduce((sum, p) => sum + p.cancelledOrders, 0);
+const totalOrders = totalCompleted + totalCancelled;
+
+// Ensure successRate is calculated correctly
+const successRate = totalOrders > 0 ? ((totalCompleted / totalOrders) * 100).toFixed(2) : "0.00";
 
     // Convert stats into an object for easy lookup
     const partnerMetrics = partnerStats.reduce((acc, stat) => {

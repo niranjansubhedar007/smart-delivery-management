@@ -49,15 +49,19 @@ export default function PartnersPage() {
     e.preventDefault();
   
     const partnerData = {
-      ...form,
+      id: editingPartner?._id, // ✅ Ensure ID is included
+      name: form.name,
+      email: form.email,
+      phone: form.phone,
       areas: form.areas ? form.areas.split(",") : [],
       shift: { start: form.shiftStart, end: form.shiftEnd },
       status: form.status === "inactive" ? "inactive" : "active",
     };
+    
   
     const method = editingPartner ? "PUT" : "POST";
     const endpoint = editingPartner
-      ? `/api/partners/${editingPartner._id}`
+      ? `/api/partners`
       : "/api/partners";
   
     const res = await fetch(endpoint, {
@@ -107,10 +111,12 @@ export default function PartnersPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this partner?")) return;
   
-    const res = await fetch(`/api/partners/${id}`, {
+    const res = await fetch(`/api/partners`, {
       method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }), // ✅ Send ID in the request body
     });
-  
+    
     if (res.ok) {
       alert("Partner deleted successfully!");
       setPartners(partners.filter((partner) => partner._id !== id));

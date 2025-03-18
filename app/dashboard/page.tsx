@@ -84,7 +84,7 @@ export default function Dashboard() {
           </div>
           <div className="p-4 bg-white shadow rounded-lg">
             <h3 className="text-lg font-bold">Success Rate</h3>
-            <p className="text-2xl">{loading ? "Loading..." : metrics?.successRate.toFixed(2) + "%"}</p>
+            <p className="text-2xl">{loading ? "Loading..." : metrics?.successRate + "%"}</p>
           </div>
           <div className="p-4 bg-white shadow rounded-lg">
             <h3 className="text-lg font-bold">Active Partners</h3>
@@ -121,7 +121,7 @@ export default function Dashboard() {
           <ul>
             {orders.slice(0, 5).map((order) => (
               <li key={order._id} className="p-2 border-b">
-                <strong>{order.orderNumber}</strong> - {order.status} ({order.area})
+                <strong>Order  {order.orderNumber}</strong> - {order.status} ({order.area})
               </li>
             ))}
           </ul>
